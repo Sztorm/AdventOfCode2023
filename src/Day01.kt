@@ -3,19 +3,7 @@ fun main() {
     printAnswers("Day01", "Day01_test_part2", 281, ::part2)
 }
 
-inline fun printAnswers(
-    inputName: String, testInputName: String, expectedTestResult: Int, answerFunc: (List<String>) -> Int
-) {
-    val testInput: List<String> = readInput(testInputName)
-
-    check(answerFunc(testInput) == expectedTestResult)
-
-    val input: List<String> = readInput(inputName)
-
-    println(answerFunc(input))
-}
-
-fun part1(input: List<String>): Int = input.sumOf { line: String ->
+private fun part1(input: List<String>): Int = input.sumOf { line: String ->
     val firstDigit: Int = line.first { it.isDigit() }.digitToInt()
     val lastDigit: Int = line.last { it.isDigit() }.digitToInt()
 
@@ -51,7 +39,7 @@ private val SINGLE_DIGIT_LETTER_REGEX = Regex(
     "(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)"
 )
 
-fun part2(input: List<String>): Int = input.sumOf { line: String ->
+private fun part2(input: List<String>): Int = input.sumOf { line: String ->
     val digitizedLine = JOINED_DIGIT_LETTER_REGEX.replace(line) { matchResult ->
         JOINED_DIGIT_LETTERS_TO_DIGITS.getOrDefault(matchResult.value, "")
     }.let {
