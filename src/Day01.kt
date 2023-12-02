@@ -1,4 +1,4 @@
-fun main() {
+private fun main() {
     printAnswers("Day01", "Day01_test_part1", 142, ::part1)
     printAnswers("Day01", "Day01_test_part2", 281, ::part2)
 }
