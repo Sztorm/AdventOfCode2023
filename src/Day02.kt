@@ -1,6 +1,8 @@
+import kotlin.math.max
+
 private fun main() {
     printAnswers("Day02", "Day02_test_part1", 8, ::part1)
-    printAnswers("Day02", "Day02_test_part2", 0, ::part2)
+    printAnswers("Day02", "Day02_test_part2", 2286, ::part2)
 }
 
 private const val MAX_RED_COUNT = 12
@@ -26,6 +28,21 @@ private fun part1(input: List<String>): Int = input.sumOf { line: String ->
     else 0
 }
 
-private fun part2(input: List<String>): Int {
-    return input.size
+private fun part2(input: List<String>): Int = input.sumOf { line: String ->
+    val (_, gamesLine) = line.split(':')
+    val games = gamesLine.split(';')
+    val (maxR, maxG, maxB) = games.map {
+        val r = RED_REGEX.find(it)?.groupValues?.getOrElse(1) { "0" }?.toInt() ?: 0
+        val g = GREEN_REGEX.find(it)?.groupValues?.getOrElse(1) { "0" }?.toInt() ?: 0
+        val b = BLUE_REGEX.find(it)?.groupValues?.getOrElse(1) { "0" }?.toInt() ?: 0
+
+        Triple(r, g, b)
+    }.fold(Triple(0, 0, 0)) { acc, triple ->
+        Triple(
+            max(acc.first, triple.first),
+            max(acc.second, triple.second),
+            max(acc.third, triple.third)
+        )
+    }
+    maxR * maxG * maxB
 }
