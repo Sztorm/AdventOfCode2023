@@ -1,8 +1,8 @@
 import kotlin.math.max
 
 private fun main() {
-    printAnswers("Day02", "Day02_test_part1", 8, ::part1)
-    printAnswers("Day02", "Day02_test_part2", 2286, ::part2)
+    printAnswer("Day02", "Day02_test_part1", 8, ::part1)
+    printAnswer("Day02", "Day02_test_part2", 2286, ::part2)
 }
 
 private const val MAX_RED_COUNT = 12
