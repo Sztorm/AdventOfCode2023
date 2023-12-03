@@ -1,6 +1,6 @@
 private fun main() {
     printAnswer("Day03", "Day03_test_part1", 4361, ::part1)
-    printAnswer("Day03", "Day03_test_part2", 0, ::part2)
+    printAnswer("Day03", "Day03_test_part2", 467835, ::part2)
 }
 
 private fun findSymbol(input: List<String>, i: Int, j: Int, length: Int): Char {
@@ -98,6 +98,93 @@ private fun part1(input: List<String>): Int {
     return sum
 }
 
+private fun fillNumChars(input: List<String>, i: Int, j: Int, numChars: ArrayList<Char>) {
+    numChars.clear()
+    var k = j
+
+    while (k < input[i].length && input[i][k].isDigit()) {
+        numChars.add(input[i][k])
+        k++
+    }
+    k = j - 1
+
+    while (k >= 0 && input[i][k].isDigit()) {
+        numChars.add(index = 0, input[i][k])
+        k--
+    }
+}
+
+private fun findGearRatio(input: List<String>, i: Int, j: Int): Int {
+    val numChars = ArrayList<Char>()
+    val numParts = ArrayList<Int>()
+
+    if (i - 1 >= 0) {
+        if (!input[i - 1][j].isDigit()) {
+            if (j - 1 >= 0 && input[i - 1][j - 1].isDigit()) {
+                fillNumChars(input, i - 1, j - 1, numChars)
+                numParts.add(getNumber(numChars))
+            }
+            if (j + 1 < input[i].length && input[i - 1][j + 1].isDigit()) {
+                fillNumChars(input, i - 1, j + 1, numChars)
+                numParts.add(getNumber(numChars))
+            }
+        } else {
+            if (j - 1 >= 0 && input[i - 1][j - 1].isDigit()) {
+                fillNumChars(input, i - 1, j - 1, numChars)
+                numParts.add(getNumber(numChars))
+            } else if (input[i - 1][j].isDigit()) {
+                fillNumChars(input, i - 1, j, numChars)
+                numParts.add(getNumber(numChars))
+            } else if (j + 1 < input[i].length && input[i - 1][j + 1].isDigit()) {
+                fillNumChars(input, i - 1, j + 1, numChars)
+                numParts.add(getNumber(numChars))
+            }
+        }
+    }
+    if (i + 1 < input.size) {
+        if (!input[i + 1][j].isDigit()) {
+            if (j - 1 >= 0 && input[i + 1][j - 1].isDigit()) {
+                fillNumChars(input, i + 1, j - 1, numChars)
+                numParts.add(getNumber(numChars))
+            }
+            if (j + 1 < input[i].length && input[i + 1][j + 1].isDigit()) {
+                fillNumChars(input, i + 1, j + 1, numChars)
+                numParts.add(getNumber(numChars))
+            }
+        } else {
+            if (j - 1 >= 0 && input[i + 1][j - 1].isDigit()) {
+                fillNumChars(input, i + 1, j - 1, numChars)
+                numParts.add(getNumber(numChars))
+            } else if (input[i + 1][j].isDigit()) {
+                fillNumChars(input, i + 1, j, numChars)
+                numParts.add(getNumber(numChars))
+            } else if (j + 1 < input[i].length && input[i + 1][j + 1].isDigit()) {
+                fillNumChars(input, i + 1, j + 1, numChars)
+                numParts.add(getNumber(numChars))
+            }
+        }
+    }
+    if (j - 1 >= 0 && input[i][j - 1].isDigit()) {
+        fillNumChars(input, i, j - 1, numChars)
+        numParts.add(getNumber(numChars))
+    }
+    if (j + 1 < input[i].length && input[i][j + 1].isDigit()) {
+        fillNumChars(input, i, j + 1, numChars)
+        numParts.add(getNumber(numChars))
+    }
+    return if (numParts.size == 2) numParts[0] * numParts[1] else 0
+}
+
 private fun part2(input: List<String>): Int {
-    return input.size
+    var sum = 0
+
+    for (i in input.indices) {
+        for (j in input[i].indices) {
+            if (input[i][j] == '*') {
+                val gearRatio = findGearRatio(input, i, j)
+                sum += gearRatio
+            }
+        }
+    }
+    return sum
 }
