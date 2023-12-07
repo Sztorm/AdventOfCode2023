@@ -1,6 +1,10 @@
+package day04
+
+import printAnswer
+
 private fun main() {
-    printAnswer("Day04", "Day04_test_part1", 13, ::part1)
-    printAnswer("Day04", "Day04_test_part2", 30, ::part2)
+    printAnswer(day = 4, testPart = 1, 13, ::part1)
+    printAnswer(day = 4, testPart = 2, 30, ::part2)
 }
 
 private data class Card(val winningNumbers: Set<Int>, val scratchedNumbers: Set<Int>) {

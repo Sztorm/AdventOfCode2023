@@ -1,8 +1,11 @@
+package day02
+
+import printAnswer
 import kotlin.math.max
 
 private fun main() {
-    printAnswer("Day02", "Day02_test_part1", 8, ::part1)
-    printAnswer("Day02", "Day02_test_part2", 2286, ::part2)
+    printAnswer(day = 2, testPart = 1, 8, ::part1)
+    printAnswer(day = 2, testPart = 2, 2286, ::part2)
 }
 
 private const val MAX_RED_COUNT = 12

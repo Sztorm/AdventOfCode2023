@@ -1,6 +1,10 @@
+package day01
+
+import printAnswer
+
 private fun main() {
-    printAnswer("Day01", "Day01_test_part1", 142, ::part1)
-    printAnswer("Day01", "Day01_test_part2", 281, ::part2)
+    printAnswer(day = 1, testPart = 1, 142, ::part1)
+    printAnswer(day = 1, testPart = 2, 281, ::part2)
 }
 
 private fun part1(input: List<String>): Int = input.sumOf { line: String ->

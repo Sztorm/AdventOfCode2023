@@ -1,6 +1,10 @@
+package day03
+
+import printAnswer
+
 private fun main() {
-    printAnswer("Day03", "Day03_test_part1", 4361, ::part1)
-    printAnswer("Day03", "Day03_test_part2", 467835, ::part2)
+    printAnswer(day = 3, testPart = 1, 4361, ::part1)
+    printAnswer(day = 3, testPart = 2, 467835, ::part2)
 }
 
 private fun findSymbol(input: List<String>, i: Int, j: Int, length: Int): Char {

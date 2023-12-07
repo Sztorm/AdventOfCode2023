@@ -1,6 +1,10 @@
+package day05
+
+import printAnswer
+
 private fun main() {
-    printAnswer("Day05", "Day05_test_part1", 35L, ::part1)
-    printAnswer("Day05", "Day05_test_part2", 0L, ::part2)
+    printAnswer(day = 5, testPart = 1, 35L, ::part1)
+    printAnswer(day = 5, testPart = 2, 46L, ::part2)
 }
 
 private data class Range(val destinationStart: Long, val sourceStart: Long, val length: Long) {

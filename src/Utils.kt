@@ -5,14 +5,24 @@ import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 
-inline fun printAnswer(
-    inputName: String, testInputName: String, expectedTestResult: Int, answerFunc: (List<String>) -> Int
-) {
-    val testInput: List<String> = readInput(testInputName)
+inline fun printAnswer(day: Int, testPart: Int, expectedTestResult: Int, answerFunc: (List<String>) -> Int) {
+    val dayNumberString = day.toString().padStart(length = 2, padChar = '0')
+    val testInput: List<String> = readInput("day$dayNumberString/Day${dayNumberString}_test_part$testPart")
 
     check(answerFunc(testInput) == expectedTestResult)
 
-    val input: List<String> = readInput(inputName)
+    val input: List<String> = readInput("day$dayNumberString/Day$dayNumberString")
+
+    println(answerFunc(input))
+}
+
+inline fun printAnswer(day: Int, testPart: Int, expectedTestResult: Long, answerFunc: (List<String>) -> Long) {
+    val dayNumberString = day.toString().padStart(length = 2, padChar = '0')
+    val testInput: List<String> = readInput("day$dayNumberString/Day${dayNumberString}_test_part$testPart")
+
+    check(answerFunc(testInput) == expectedTestResult)
+
+    val input: List<String> = readInput("day$dayNumberString/Day$dayNumberString")
 
     println(answerFunc(input))
 }

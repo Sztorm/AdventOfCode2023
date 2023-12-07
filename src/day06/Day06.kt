@@ -1,10 +1,13 @@
+package day06
+
+import printAnswer
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.sqrt
 
 private fun main() {
-    printAnswer("Day06", "Day06_test_part1", 288L, ::part1)
-    printAnswer("Day06", "Day06_test_part2", 71503L, ::part2)
+    printAnswer(day = 6, testPart = 1, 288L, ::part1)
+    printAnswer(day = 6, testPart = 2, 71503L, ::part2)
 }
 
 private val NUMBER_REGEX = Regex("([0-9]+)")
