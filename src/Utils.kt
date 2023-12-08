@@ -38,3 +38,10 @@ fun readInput(name: String) = Path("src/$name.txt").readLines()
 fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
     .toString(16)
     .padStart(32, '0')
+
+tailrec fun greatestCommonDivisor(a: Long, b: Long): Long = when {
+    b != 0L -> greatestCommonDivisor(b, a % b)
+    else -> a
+}
+
+fun leastCommonMultiple(a: Long, b: Long): Long = a * (b / greatestCommonDivisor(a, b))

@@ -18,6 +18,7 @@ If you're stuck with Kotlin-specific questions or anything related to this templ
 - [Day 5](src/day05/Day05.kt) ⭐
 - [Day 6](src/day06/Day06.kt) ⭐⭐
 - [Day 7](src/day07/Day07.kt) ⭐⭐
+- [Day 8](src/day08/Day08.kt) ⭐⭐
 
 **Collected stars: 13**
 

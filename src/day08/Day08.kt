@@ -1,13 +1,14 @@
 package day08
 
+import leastCommonMultiple
 import printAnswer
 
 private fun main() {
-    printAnswer(day = 8, testPart = 1, 6, ::part1)
-    printAnswer(day = 8, testPart = 2, 0, ::part2)
+    printAnswer(day = 8, testPart = 1, 6L, ::part1)
+    printAnswer(day = 8, testPart = 2, 6L, ::part2)
 }
 
-private val NODE_REGEX = Regex("[A-Z]{3}")
+private val NODE_REGEX = Regex("[0-9A-Z]{3}")
 
 private fun parseNodePair(input: String) = NODE_REGEX
     .findAll(input)
@@ -15,16 +16,27 @@ private fun parseNodePair(input: String) = NODE_REGEX
     .map { it.value }
     .let { Pair(it[0], Pair(it[1], it[2])) }
 
-private fun part1(input: List<String>): Int {
+private fun part1(input: List<String>): Long {
     val instructions: String = input[0]
     val nodePairsByNode: Map<String, Pair<String, String>> = input
         .subList(fromIndex = 2, toIndex = input.size)
         .associate { parseNodePair(it) }
-    var currentNode = "AAA"
-    var currentInstructionIndex = 0
-    var stepCount = 0
+    val startNode = "AAA"
 
-    while (currentNode != "ZZZ") {
+    return countStepsWhile(nodePairsByNode, instructions, startNode) { it != "ZZZ" }
+}
+
+private inline fun countStepsWhile(
+    nodePairsByNode: Map<String, Pair<String, String>>,
+    instructions: String,
+    startNode: String,
+    match: (String) -> Boolean
+): Long {
+    var currentNode = startNode
+    var currentInstructionIndex = 0
+    var stepCount = 0L
+
+    while (match(currentNode)) {
         val pair = nodePairsByNode[currentNode]!!
 
         currentNode =
@@ -36,6 +48,15 @@ private fun part1(input: List<String>): Int {
     return stepCount
 }
 
-private fun part2(input: List<String>): Int {
-    return input.size
+private fun part2(input: List<String>): Long {
+    val instructions: String = input[0]
+    val nodePairsByNode: Map<String, Pair<String, String>> = input
+        .subList(fromIndex = 2, toIndex = input.size)
+        .associate { parseNodePair(it) }
+    val startNodes: List<String> = nodePairsByNode.keys
+        .filter { it[2] == 'A' }
+    val stepCountsToAchieveZ: List<Long> = startNodes.map { startNode ->
+        countStepsWhile(nodePairsByNode, instructions, startNode) { it[2] != 'Z' }
+    }
+    return stepCountsToAchieveZ.reduce { acc, n -> leastCommonMultiple(acc, n) }
 }
