@@ -1,10 +1,12 @@
 package day10
 
+import ByteArray2D
 import printAnswer
+import kotlin.math.max
 
 private fun main() {
     printAnswer(day = 10, testPart = 1, 8, ::part1)
-    printAnswer(day = 10, testPart = 2, 0, ::part2)
+    printAnswer(day = 10, testPart = 2, 10, ::part2)
 }
 
 private sealed interface Pipe {
@@ -176,14 +178,15 @@ private data object SEPipe : Pipe {
     override fun toString(): String = "F"
 }
 
-private class PipeGrid private constructor(
-    private val grid: ByteArray,
-    val rowCount: Int,
+private class PipeGrid private constructor(private val grid: ByteArray2D) {
+    val rowCount: Int
+        get() = grid.rowCount
+
     val columnCount: Int
-) {
-    operator fun get(row: Int, column: Int): Pipe? {
-        return PIPES_BY_INDEX[grid[row * columnCount + column].toInt()]
-    }
+        get() = grid.columnCount
+
+    operator fun get(row: Int, column: Int): Pipe? =
+        PIPES_BY_INDEX[grid[row, column].toInt()]
 
     fun getConnectedIndices(row: Int, column: Int): Pair<Pair<Int, Int>, Pair<Int, Int>> =
         when (this[row, column]) {
@@ -232,8 +235,7 @@ private class PipeGrid private constructor(
             null -> Pair(Pair(-1, -1), Pair(-1, -1))
         }
 
-    fun isWithinBounds(row: Int, column: Int): Boolean =
-        row.toUInt() < rowCount.toUInt() && column.toUInt() < columnCount.toUInt()
+    fun isWithinBounds(row: Int, column: Int): Boolean = grid.isWithinBounds(row, column)
 
     override fun toString(): String {
         val sb = StringBuilder((rowCount + 1) * columnCount)
@@ -313,8 +315,8 @@ private class PipeGrid private constructor(
         fun parse(input: List<String>): Pair<PipeGrid, Pair<Int, Int>> {
             val rowCount = input.size
             val columnCount = input[0].length
-            val grid = ByteArray(rowCount * columnCount)
-            val result = PipeGrid(grid, rowCount, columnCount)
+            val grid = ByteArray2D(rowCount, columnCount)
+            val result = PipeGrid(grid)
             var start = Pair(-1, -1)
 
             for (row in 0..<rowCount) {
@@ -325,11 +327,10 @@ private class PipeGrid private constructor(
                         start = Pair(row, column)
                         val matchingChar = findMatchingPipeChar(row, column, input, result)
 
-                        grid[row * columnCount + column] =
+                        grid[row, column] =
                             PIPE_VALUES_BY_CHAR.getOrDefault(matchingChar, 0)
                     } else {
-                        grid[row * columnCount + column] =
-                            PIPE_VALUES_BY_CHAR.getOrDefault(char, 0)
+                        grid[row, column] = PIPE_VALUES_BY_CHAR.getOrDefault(char, 0)
                     }
                 }
             }
@@ -369,6 +370,163 @@ private fun part1(input: List<String>): Int {
     return stepCount
 }
 
+private fun markPipe(grid: ByteArray2D, row: Int, column: Int, pipe: Pipe?) = when (pipe) {
+    VerticalPipe -> {
+        grid[row * 3, column * 3 + 1] = 1
+        grid[row * 3 + 1, column * 3 + 1] = 1
+        grid[row * 3 + 2, column * 3 + 1] = 1
+    }
+
+    HorizontalPipe -> {
+        grid[row * 3 + 1, column * 3] = 1
+        grid[row * 3 + 1, column * 3 + 1] = 1
+        grid[row * 3 + 1, column * 3 + 2] = 1
+    }
+
+    NEPipe -> {
+        grid[row * 3, column * 3 + 1] = 1
+        grid[row * 3 + 1, column * 3 + 1] = 1
+        grid[row * 3 + 1, column * 3 + 2] = 1
+    }
+
+    NWPipe -> {
+        grid[row * 3, column * 3 + 1] = 1
+        grid[row * 3 + 1, column * 3] = 1
+        grid[row * 3 + 1, column * 3 + 1] = 1
+    }
+
+    SEPipe -> {
+        grid[row * 3 + 1, column * 3 + 1] = 1
+        grid[row * 3 + 1, column * 3 + 2] = 1
+        grid[row * 3 + 2, column * 3 + 1] = 1
+    }
+
+    SWPipe -> {
+        grid[row * 3 + 1, column * 3] = 1
+        grid[row * 3 + 1, column * 3 + 1] = 1
+        grid[row * 3 + 2, column * 3 + 1] = 1
+    }
+
+    null -> {}
+}
+
+private fun markMainLoop(grid: ByteArray2D, pipeGrid: PipeGrid, start: Pair<Int, Int>) {
+    var (nextPipeA, _) = pipeGrid.getConnectedIndices(start.first, start.second)
+    var prevPipeA = start
+    markPipe(grid, start.first, start.second, pipeGrid[start.first, start.second])
+
+    while (nextPipeA != start) {
+        markPipe(grid, nextPipeA.first, nextPipeA.second, pipeGrid[nextPipeA.first, nextPipeA.second])
+        val (nextPipeAA, nextPipeAB) =
+            pipeGrid.getConnectedIndices(nextPipeA.first, nextPipeA.second)
+
+        if (prevPipeA == nextPipeAA) {
+            prevPipeA = nextPipeA
+            nextPipeA = nextPipeAB
+        } else {
+            prevPipeA = nextPipeA
+            nextPipeA = nextPipeAA
+        }
+    }
+}
+
+// I know it's terrible!
+private fun markEnclosedAreas(grid: ByteArray2D) {
+    for (row in 0..<grid.rowCount) {
+        for (column in 0..<grid.columnCount) {
+            if (grid[row, column].toInt() == 0) {
+                if (grid.isWithinBounds(row - 1, column)) {
+                    if (grid[row - 1, column].toInt() == 1 || grid[row - 1, column].toInt() == 3) {
+                        grid[row, column] = 3
+                    }
+                } else {
+                    grid[row, column] = 0
+                    continue
+                }
+                if (grid.isWithinBounds(row + 1, column)) {
+                    if (grid[row + 1, column].toInt() == 1 || grid[row + 1, column].toInt() == 3) {
+                        grid[row, column] = 3
+                    }
+                } else {
+                    grid[row, column] = 0
+                    continue
+                }
+                if (grid.isWithinBounds(row, column - 1)) {
+                    if (grid[row, column - 1].toInt() == 1 || grid[row, column - 1].toInt() == 3) {
+                        grid[row, column] = 3
+                    }
+                } else {
+                    grid[row, column] = 0
+                    continue
+                }
+                if (grid.isWithinBounds(row, column + 1)) {
+                    if (grid[row, column + 1].toInt() == 1 || grid[row, column + 1].toInt() == 3) {
+                        grid[row, column] = 3
+                    }
+                } else {
+                    grid[row, column] = 0
+                    continue
+                }
+            }
+        }
+    }
+    for (i in 0..max(grid.rowCount, grid.columnCount)) {
+        for (row in 0..<grid.rowCount) {
+            for (column in 0..<grid.columnCount) {
+                if (grid[row, column].toInt() == 3) {
+                    if (grid.isWithinBounds(row - 1, column) &&
+                        (grid[row - 1, column].toInt() == 0)
+                    ) {
+                        grid[row, column] = 0
+                    }
+                    if (grid.isWithinBounds(row + 1, column) &&
+                        (grid[row + 1, column].toInt() == 0)
+                    ) {
+                        grid[row, column] = 0
+                    }
+                    if (grid.isWithinBounds(row, column - 1) &&
+                        (grid[row, column - 1].toInt() == 0)
+                    ) {
+                        grid[row, column] = 0
+                    }
+                    if (grid.isWithinBounds(row, column + 1) &&
+                        (grid[row, column + 1].toInt() == 0)
+                    ) {
+                        grid[row, column] = 0
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun countEnclosedAreas(grid: ByteArray2D): Int {
+    var result = 0
+
+    for (row in 0..<grid.rowCount step 3) {
+        for (column in 0..<grid.columnCount step 3) {
+            if (grid[row, column].toInt() == 3 &&
+                grid[row, column + 1].toInt() == 3 &&
+                grid[row, column + 2].toInt() == 3 &&
+                grid[row + 1, column].toInt() == 3 &&
+                grid[row + 1, column + 1].toInt() == 3 &&
+                grid[row + 1, column + 2].toInt() == 3 &&
+                grid[row + 2, column].toInt() == 3 &&
+                grid[row + 2, column + 1].toInt() == 3 &&
+                grid[row + 2, column + 2].toInt() == 3
+            ) {
+                result++
+            }
+        }
+    }
+    return result
+}
+
 private fun part2(input: List<String>): Int {
-    return input.size
+    val (pipeGrid, start) = PipeGrid.parse(input)
+    val grid = ByteArray2D(pipeGrid.rowCount * 3, pipeGrid.columnCount * 3)
+    markMainLoop(grid, pipeGrid, start)
+    markEnclosedAreas(grid)
+
+    return countEnclosedAreas(grid)
 }
