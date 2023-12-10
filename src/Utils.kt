@@ -5,6 +5,21 @@ import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 
+class ByteArray2D(val rowCount: Int, val columnCount: Int) {
+    private val array = ByteArray(rowCount * columnCount)
+
+    operator fun get(row: Int, column: Int): Byte = array[row * columnCount + column]
+
+    operator fun set(row: Int, column: Int, value: Byte) {
+        array[row * columnCount + column] = value
+    }
+
+    fun isWithinBounds(row: Int, column: Int): Boolean =
+        row.toUInt() < rowCount.toUInt() && column.toUInt() < columnCount.toUInt()
+
+    fun count(predicate: (Byte) -> Boolean): Int = array.count(predicate)
+}
+
 inline fun printAnswer(day: Int, testPart: Int, expectedTestResult: Int, answerFunc: (List<String>) -> Int) {
     val dayNumberString = day.toString().padStart(length = 2, padChar = '0')
     val testInput: List<String> = readInput("day$dayNumberString/Day${dayNumberString}_test_part$testPart")
