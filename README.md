@@ -21,8 +21,9 @@ If you're stuck with Kotlin-specific questions or anything related to this templ
 - [Day 8](src/day08/Day08.kt) ⭐⭐
 - [Day 9](src/day09/Day09.kt) ⭐⭐
 - [Day 10](src/day10/Day10.kt) ⭐⭐
+- [Day 11](src/day11/Day11.kt) ⭐⭐
 
-**Collected stars: 17**
+**Collected stars: 21**
 
 [^aoc]:
     [Advent of Code][aoc] – An annual event of Christmas-oriented programming challenges started December 2015.
