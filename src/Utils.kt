@@ -10,14 +10,31 @@ class ByteArray2D(val rowCount: Int, val columnCount: Int) {
 
     operator fun get(row: Int, column: Int): Byte = array[row * columnCount + column]
 
+    operator fun get(index: Pair<Int, Int>): Byte = array[index.first * columnCount + index.second]
+
     operator fun set(row: Int, column: Int, value: Byte) {
         array[row * columnCount + column] = value
+    }
+
+    operator fun set(index: Pair<Int, Int>, value: Byte) {
+        array[index.first * columnCount + index.second] = value
     }
 
     fun isWithinBounds(row: Int, column: Int): Boolean =
         row.toUInt() < rowCount.toUInt() && column.toUInt() < columnCount.toUInt()
 
     fun count(predicate: (Byte) -> Boolean): Int = array.count(predicate)
+
+    fun joinToString(rowSeparator: CharSequence = "\n", transform: (Byte) -> String): String {
+        val sb = StringBuilder()
+        for (row in 0..<rowCount) {
+            for (column in 0..<columnCount) {
+                sb.append(transform(this[row, column]))
+            }
+            sb.append(rowSeparator)
+        }
+        return sb.toString()
+    }
 }
 
 inline fun printAnswer(day: Int, testPart: Int, expectedTestResult: Int, answerFunc: (List<String>) -> Int) {
