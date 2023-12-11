@@ -6,7 +6,7 @@ import kotlin.math.abs
 
 private fun main() {
     printAnswer(day = 11, testPart = 1, 374, ::part1)
-    printAnswer(day = 11, testPart = 2, 0, ::part2)
+    printAnswer(day = 11, testPart = 2, 82000210L, ::part2)
 }
 
 private class CosmicGrid private constructor(private val grid: ByteArray2D) {
@@ -58,49 +58,67 @@ private class CosmicGrid private constructor(private val grid: ByteArray2D) {
         return result
     }
 
-    companion object {
-        private fun getExpandedInput(input: List<String>): List<List<Char>> {
-            val result = input
-                .map { it.toMutableList() }
-                .toMutableList()
-            var i = result.lastIndex
+    fun getEmptyRowIndices(): List<Int> {
+        val result = ArrayList<Int>()
 
-            while (i >= 0) {
-                if (result[i].all { it == '.' }) {
-                    result.add(i, MutableList(result[i].size) { '.' })
+        for (row in 0..<rowCount) {
+            var isEmpty = true
+
+            for (col in 0..<columnCount) {
+                if (this[row, col] != 0) {
+                    isEmpty = false
                 }
-                i--
             }
-            var j = result[0].lastIndex
-
-            while (j >= 0) {
-                var hasDotsOnly = true
-
-                for (i2 in result.indices) {
-                    if (result[i2][j] != '.') {
-                        hasDotsOnly = false
-                    }
-                }
-                if (hasDotsOnly) {
-                    for (i2 in result.indices) {
-                        result[i2].add(j, '.')
-                    }
-                }
-                j--
+            if (isEmpty) {
+                result.add(row)
             }
-            return result
         }
+        return result
+    }
 
+    fun getEmptyColumnIndices(): List<Int> {
+        val result = ArrayList<Int>()
+
+        for (col in 0..<columnCount) {
+            var isEmpty = true
+
+            for (row in 0..<rowCount) {
+                if (this[row, col] != 0) {
+                    isEmpty = false
+                }
+            }
+            if (isEmpty) {
+                result.add(col)
+            }
+        }
+        return result
+    }
+
+    fun getGalaxyIndicesWithEmptyDistances(emptyDistance: Int): List<Pair<Int, Int>> {
+        val emptyRowIndices = getEmptyRowIndices()
+        val emptyColumnIndices = getEmptyColumnIndices()
+
+        return getGalaxyIndices().map { index ->
+            val emptyRowsCount = emptyRowIndices.count { it < index.first }
+            val emptyColsCount = emptyColumnIndices.count { it < index.second }
+
+            Pair(
+                index.first + emptyRowsCount * (emptyDistance - 1),
+                index.second + emptyColsCount * (emptyDistance - 1)
+            )
+        }
+    }
+
+    companion object {
         fun parse(input: List<String>): CosmicGrid {
-            val expandedInput = getExpandedInput(input)
-            val rowCount = expandedInput.size
-            val columnCount = expandedInput[0].size
+            val rowCount = input.size
+            val columnCount = input[0].length
             val grid = ByteArray2D(rowCount, columnCount)
             val result = CosmicGrid(grid)
 
             for (row in 0..<rowCount) {
                 for (column in 0..<columnCount) {
-                    val char = expandedInput[row][column]
+                    val char = input[row][column]
 
                     grid[row, column] = if (char == '#') 1 else 0
                 }
@@ -112,15 +130,40 @@ private class CosmicGrid private constructor(private val grid: ByteArray2D) {
 
 private fun part1(input: List<String>): Int {
     val cosmicGrid = CosmicGrid.parse(input)
-    val galaxyIndices = cosmicGrid.getGalaxyIndices()
+    val galaxyIndices = cosmicGrid
+        .getGalaxyIndicesWithEmptyDistances(2)
+        .toMutableList()
     var result = 0
 
-    for (index in galaxyIndices) {
-        result += cosmicGrid.getSteps(index, galaxyIndices.filter { it != index }).sum()
+    while (galaxyIndices.isNotEmpty()) {
+        val index = galaxyIndices.removeLast()
+
+        if (galaxyIndices.isEmpty()) {
+            break
+        }
+        result += cosmicGrid
+            .getSteps(index, galaxyIndices)
+            .sum()
     }
-    return result / 2
+    return result
 }
 
-private fun part2(input: List<String>): Int {
-    return input.size
+private fun part2(input: List<String>): Long {
+    val cosmicGrid = CosmicGrid.parse(input)
+    val galaxyIndices = cosmicGrid
+        .getGalaxyIndicesWithEmptyDistances(1000000)
+        .toMutableList()
+    var result = 0L
+
+    while (galaxyIndices.isNotEmpty()) {
+        val index = galaxyIndices.removeLast()
+
+        if (galaxyIndices.isEmpty()) {
+            break
+        }
+        result += cosmicGrid
+            .getSteps(index, galaxyIndices)
+            .sumOf { it.toLong() }
+    }
+    return result
 }

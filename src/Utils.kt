@@ -1,9 +1,53 @@
-@file:Suppress("unused")
+@file:Suppress( "MemberVisibilityCanBePrivate", "unused")
 
 import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+
+class Array2D<T>(
+    private val array: Array<T>,
+    val rowCount: Int,
+    val columnCount: Int
+) {
+    operator fun get(row: Int, column: Int): T = array[row * columnCount + column]
+
+    operator fun get(index: Pair<Int, Int>): T = array[index.first * columnCount + index.second]
+
+    operator fun set(row: Int, column: Int, value: T) {
+        array[row * columnCount + column] = value
+    }
+
+    operator fun set(index: Pair<Int, Int>, value: T) {
+        array[index.first * columnCount + index.second] = value
+    }
+
+    fun isWithinBounds(row: Int, column: Int): Boolean =
+        row.toUInt() < rowCount.toUInt() && column.toUInt() < columnCount.toUInt()
+
+    fun count(predicate: (T) -> Boolean): Int = array.count(predicate)
+
+    fun joinToString(rowSeparator: CharSequence = "\n", transform: (T) -> String): String {
+        val sb = StringBuilder()
+        for (row in 0..<rowCount) {
+            for (column in 0..<columnCount) {
+                sb.append(transform(this[row, column]))
+            }
+            sb.append(rowSeparator)
+        }
+        return sb.toString()
+    }
+
+    companion object {
+        inline operator fun <reified T> invoke(
+            rowCount: Int, columnCount: Int, init: (Int, Int) -> T
+        ): Array2D<T> {
+            val array = Array(rowCount * columnCount) { init(it / columnCount, it % columnCount) }
+
+            return Array2D(array, rowCount, columnCount)
+        }
+    }
+}
 
 class ByteArray2D(val rowCount: Int, val columnCount: Int) {
     private val array = ByteArray(rowCount * columnCount)
